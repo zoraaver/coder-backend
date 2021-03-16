@@ -1,0 +1,7 @@
+node_modules
+
+# secrets, api keys etc.
+.env
+
+# built js files
+dist
