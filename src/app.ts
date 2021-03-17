@@ -7,12 +7,13 @@ sequelize
   .authenticate()
   .then(async () => {
     console.log("Successfully connected");
-    const courses: Course[] = await Course.findAll({where: {id: 1}, include: Section});
-    // console.log(courses)
+    const courses: Course[] = await Course.findAll({
+      where: { id: 1 },
+      include: { model: Section, as: "sections" },
+    });
     const sections: Section[] = courses[0].sections;
     // sections.every((section: Section) => console.log(section))
     console.log(sections);
-
   })
   .catch((error) => {
     console.error(error);

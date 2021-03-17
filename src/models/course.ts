@@ -3,7 +3,7 @@ import { Section } from "./section";
 import { sequelize } from "../util/database";
 
 export class Course extends Model {
-    sections: Section[] = [];
+  sections!: Section[];
 }
 
 Course.init(
@@ -29,4 +29,10 @@ Course.init(
 
 Course.hasMany(Section, {
   foreignKey: "course_id",
+  as: 'sections'
+});
+
+Section.belongsTo(Course, {
+  foreignKey: "course_id",
+  as: 'course'
 });
