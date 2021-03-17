@@ -5,7 +5,10 @@ import { Lesson } from "./lesson";
 import { UserCourse } from "./usercourse";
 import { UserLesson } from "./userlesson";
 
-export class User extends Model {}
+export class User extends Model {
+  lessons!: Lesson[];
+  courses!: Course[];
+}
 
 User.init(
   {
