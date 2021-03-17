@@ -1,7 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../util/database";
+import { Subsection } from "./subsection";
 
 export class Section extends Model {
+  subsections!: Subsection[];
 }
 
 Section.init(
@@ -26,3 +28,7 @@ Section.init(
   }
 );
 
+Section.hasMany(Subsection, {
+  foreignKey: "section_id",
+  as: "subsections",
+});

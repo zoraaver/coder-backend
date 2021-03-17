@@ -1,19 +1,21 @@
 import { sequelize } from "./util/database";
-// import { User } from "./models/user";
-import { Course } from "./models/course";
-import { Section } from "./models/section";
+// import { Course } from "./models/course";
+// import { Section } from "./models/section";
+// import { Subsection } from "./models/subsection";
+import { Lesson } from "./models/lesson";
+import { User } from "./models/user";
+// import { UserLesson } from "./models/userlesson";
 
 sequelize
   .authenticate()
   .then(async () => {
-    console.log("Successfully connected");
-    const courses: Course[] = await Course.findAll({
+    const user: User | null = await User.findOne({
       where: { id: 1 },
-      include: { model: Section, as: "sections" },
+      include: {model: Lesson, as: "lessons"}
     });
-    const sections: Section[] = courses[0].sections;
-    // sections.every((section: Section) => console.log(section))
-    console.log(sections);
+    if (!user) throw new Error("No user found");
+
+    console.log("Successfully connected");
   })
   .catch((error) => {
     console.error(error);
