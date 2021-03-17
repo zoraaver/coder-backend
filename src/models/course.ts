@@ -4,6 +4,7 @@ import { sequelize } from "../util/database";
 
 export class Course extends Model {
   sections!: Section[];
+  dataValues: any;
 }
 
 Course.init(
@@ -29,10 +30,10 @@ Course.init(
 
 Course.hasMany(Section, {
   foreignKey: "course_id",
-  as: 'sections'
+  as: "sections",
 });
 
 Section.belongsTo(Course, {
   foreignKey: "course_id",
-  as: 'course'
+  as: "course",
 });

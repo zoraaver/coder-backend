@@ -4,4 +4,4 @@ import { requireUserInRequestBody } from "../middleware/user";
 
 export const userRoutes = Router();
 
-userRoutes.post("/users", requireUserInRequestBody, usersController.create);
+userRoutes.post("/", requireUserInRequestBody, usersController.create);

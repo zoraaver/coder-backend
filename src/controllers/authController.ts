@@ -42,7 +42,7 @@ export async function validate(
       },
     });
     if (!user) {
-      res.status(401).json({ message: "User cannot be found." });
+      res.status(404).json({ message: "User cannot be found." });
       return;
     }
     user.setToken();

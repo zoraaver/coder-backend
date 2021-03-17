@@ -4,6 +4,7 @@ import { Subsection } from "./subsection";
 
 export class Section extends Model {
   subsections!: Subsection[];
+  dataValues: any;
 }
 
 Section.init(

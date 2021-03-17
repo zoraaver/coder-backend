@@ -4,6 +4,7 @@ import { Lesson } from "./lesson";
 
 export class Subsection extends Model {
   lessons!: Lesson[];
+  dataValues: any;
 }
 
 Subsection.init(

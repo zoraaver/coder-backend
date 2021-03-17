@@ -9,7 +9,6 @@ export async function create(
   const { email, password, password_confirmation } = req.body.user;
 
   const user: User | null = await User.findOne({ where: { email } });
-
   if (user) {
     res.status(406).json({ message: "Email is already taken" });
     return;

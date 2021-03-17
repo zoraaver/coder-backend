@@ -1,7 +1,9 @@
 import { sequelize } from "../util/database";
 import { DataTypes, Model } from "sequelize";
 
-export class UserLesson extends Model {}
+export class UserLesson extends Model {
+  status!: number;
+}
 
 UserLesson.init(
   {

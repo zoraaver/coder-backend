@@ -18,9 +18,22 @@ export function setCurrentUser(
       );
       next();
     } catch (error) {
-      res
-        .status(401)
-        .json({ message: "You need to be logged in to see this page" });
+      next();
     }
   }
+}
+
+export function loggedIn(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  if (!req.currentUserId) {
+    res
+      .status(401)
+      .json({ message: "You need to be logged in to see this page." });
+  } else {
+    next();
+  }
+  return;
 }

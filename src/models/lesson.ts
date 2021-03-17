@@ -1,7 +1,19 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../util/database";
+import { UserLesson } from "./userlesson";
 
-export class Lesson extends Model {}
+export class Lesson extends Model {
+  id!: string;
+  dataValues: any;
+
+  async completed(userId: number): Promise<number> {
+    const userLesson = await UserLesson.findOne({
+      where: { user_id: userId, lesson_id: this.id },
+    });
+    if (userLesson) return userLesson.status;
+    return 0;
+  }
+}
 
 Lesson.init(
   {
@@ -30,4 +42,3 @@ Lesson.init(
     tableName: "lessons",
   }
 );
-
