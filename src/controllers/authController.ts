@@ -19,7 +19,7 @@ export async function login(
   });
   if (user && user.authenticate(password)) {
     user.setToken();
-    res.json({...user.dataValues, password_digest: null});
+    res.json({ ...user.dataValues, password_digest: null });
   } else {
     res.status(401).json({
       message: "We couldn't find a user with that email and password",

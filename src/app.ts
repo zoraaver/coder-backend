@@ -2,6 +2,7 @@ import { sequelize } from "./util/database";
 import express, { Application } from "express";
 import { setCurrentUser } from "./middleware/auth";
 import { authRoutes } from "./routes/authRoutes";
+import { userRoutes } from "./routes/userRoutes";
 
 const app: Application = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 app.use(setCurrentUser);
 app.use(authRoutes);
+app.use(userRoutes);
 
 sequelize
   .authenticate()

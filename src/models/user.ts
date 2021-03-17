@@ -5,7 +5,7 @@ import { Lesson } from "./lesson";
 import { UserCourse } from "./usercourse";
 import { UserLesson } from "./userlesson";
 import jwt from "jsonwebtoken";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 export class User extends Model {
   lessons!: Lesson[];
@@ -32,8 +32,30 @@ User.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    email: DataTypes.STRING,
-    password_digest: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      validate: {
+        isEmail: {
+          msg: "Please enter a valid email address.",
+        },
+        notNull: {
+          msg: "Please enter an email address.",
+        },
+      },
+      allowNull: false,
+    },
+    password_digest: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Please enter a password.",
+        },
+      },
+      set(value: string) {
+        this.setDataValue("password_digest", bcrypt.hashSync(value, 12));
+      },
+    },
     admin: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
