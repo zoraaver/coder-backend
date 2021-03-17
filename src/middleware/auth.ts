@@ -1,0 +1,24 @@
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+
+export function setCurrentUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const authHeader: string | undefined =
+    req.get("Authorization") || req.get("Authorisation");
+  if (!authHeader) {
+    req.currentUserId = undefined;
+    next();
+  } else {
+    try {
+      req.currentUserId = Number(
+        jwt.verify(authHeader, process.env.JWT_SECRET as string)
+      );
+      next();
+    } catch (error) {
+      next(error);
+    }
+  }
+}

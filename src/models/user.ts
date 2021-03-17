@@ -16,7 +16,7 @@ export class User extends Model {
   admin!: boolean;
 
   getToken(): string | object {
-    return jwt.sign({ user_id: this.id }, process.env.JWT_SECRET as string);
+    return jwt.sign(this.id, process.env.JWT_SECRET as string);
   }
 
   async authenticate(password: string): Promise<boolean> {
