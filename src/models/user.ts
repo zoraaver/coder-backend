@@ -14,9 +14,10 @@ export class User extends Model {
   password_digest!: string;
   email!: string;
   admin!: boolean;
+  dataValues: any;
 
-  getToken(): string | object {
-    return jwt.sign(this.id, process.env.JWT_SECRET as string);
+  setToken(): void {
+    this.dataValues.token = jwt.sign(this.id, process.env.JWT_SECRET as string);
   }
 
   async authenticate(password: string): Promise<boolean> {

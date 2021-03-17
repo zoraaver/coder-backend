@@ -18,15 +18,34 @@ export async function login(
     },
   });
   if (user && user.authenticate(password)) {
-    res.json({
-      email: user.email,
-      token: user.getToken(),
-      courses: user.courses,
-      admin: user.admin,
-    });
+    user.setToken();
+    res.json({...user.dataValues, password_digest: null});
   } else {
     res.status(401).json({
       message: "We couldn't find a user with that email and password",
     });
+  }
+}
+
+export async function validate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  if (req.currentUserId) {
+    const user: User | null = await User.findByPk(req.currentUserId, {
+      attributes: ["id", "email", "admin"],
+      include: {
+        model: Course,
+        as: "courses",
+        attributes: ["id", "title", "description", "img_url"],
+      },
+    });
+    if (!user) {
+      res.status(401).json({ message: "User cannot be found." });
+      return;
+    }
+    user.setToken();
+    res.json(user);
   }
 }
