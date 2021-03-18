@@ -73,8 +73,24 @@ Lesson.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    title: DataTypes.STRING,
-    subsection_id: DataTypes.INTEGER,
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Title is a mandatory field",
+        },
+      },
+    },
+    subsection_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Subsection id is a mandatory field",
+        },
+      },
+    },
     test: DataTypes.TEXT,
     starter_code: DataTypes.TEXT,
     language: DataTypes.STRING,

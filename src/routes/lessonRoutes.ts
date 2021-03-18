@@ -13,4 +13,21 @@ lessonRoutes.post(
 );
 
 lessonRoutes.get("/:id/edit", isAdmin, lessonsController.edit);
+
 lessonRoutes.get("/:id", lessonsController.show);
+
+lessonRoutes.put(
+  "/:id",
+  isAdmin,
+  requireLessonInRequestBody,
+  lessonsController.update
+);
+
+lessonRoutes.patch(
+  "/:id",
+  isAdmin,
+  requireLessonInRequestBody,
+  lessonsController.update
+);
+
+lessonRoutes.delete("/:id", isAdmin, lessonsController.destroy);

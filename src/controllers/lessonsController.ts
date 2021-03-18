@@ -38,7 +38,7 @@ export async function create(
       ...req.body.lesson,
       sort_id: nextSortId,
     });
-    res.status(201).json(lesson.id);
+    res.status(201).json(Number(lesson.id));
   } catch (error) {
     res.status(406).json({ message: error.message });
   }
@@ -107,4 +107,38 @@ export async function show(
       ? { title: previousLesson.title, id: previousLesson.id }
       : null,
   });
+}
+
+export async function update(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const id: string = req.params.id;
+  const lesson: Lesson | null = await Lesson.findByPk(id);
+  if (!lesson) {
+    res.status(404).json({ message: `Cannot find lesson with id ${id}` });
+    return;
+  }
+  try {
+    await lesson.update(req.body.lesson);
+    res.json(Number(lesson.id));
+  } catch (error) {
+    res.status(406).json({ message: error.message });
+  }
+}
+
+export async function destroy(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const id: string = req.params.id;
+  const lesson: Lesson | null = await Lesson.findByPk(id);
+  if (!lesson) {
+    res.status(404).json({ message: `Cannot find lesson with id ${id}` });
+    return;
+  }
+  await lesson.destroy();
+  res.json(Number(lesson.id));
 }

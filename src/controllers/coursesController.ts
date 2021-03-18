@@ -51,7 +51,7 @@ export async function show(
     },
   });
   if (!course) {
-    res.status(404).json("Cannot find course with that id");
+    res.status(404).json(`Cannot find course with id ${id}`);
     return;
   }
   await UserCourse.findOrCreate({

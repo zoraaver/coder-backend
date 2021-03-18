@@ -21,7 +21,7 @@ export async function create(
     ],
   });
   if (!course) {
-    res.status(406).json({ message: "Invalid course id" });
+    res.status(406).json({ message: `Invalid course id ${course_id}` });
     return;
   }
   const nextSortId: number = course.sections.length
@@ -49,10 +49,10 @@ export async function update(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const sectionId: string = req.params.id;
-  let section: Section | null = await Section.findByPk(sectionId);
+  const id: string = req.params.id;
+  let section: Section | null = await Section.findByPk(id);
   if (!section) {
-    res.status(404).json({ message: "Cannot find section with that id" });
+    res.status(404).json({ message: `Cannot find section with id ${id}` });
     return;
   }
 
@@ -74,5 +74,5 @@ export async function destroy(
     res.json(id);
     return;
   }
-  res.status(404).json({ message: "Cannot find section with that id" });
+  res.status(404).json({ message: `Cannot find section with id ${id}` });
 }

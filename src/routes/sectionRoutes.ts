@@ -5,6 +5,7 @@ import { requireSectionInRequestBody } from "../middleware/section";
 export const sectionRoutes = Router();
 
 sectionRoutes.post("/", requireSectionInRequestBody, sectionsController.create);
+
 sectionRoutes.patch(
   "/:id",
   requireSectionInRequestBody,
@@ -15,4 +16,5 @@ sectionRoutes.put(
   requireSectionInRequestBody,
   sectionsController.update
 );
+
 sectionRoutes.delete("/:id", sectionsController.destroy);

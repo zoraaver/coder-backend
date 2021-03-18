@@ -21,7 +21,7 @@ export async function create(
     ],
   });
   if (!section) {
-    res.status(406).json({ message: "Invalid section id" });
+    res.status(406).json({ message: `Invalid section id, ${section_id}` });
     return;
   }
   const nextSortId: number = section.subsections.length
@@ -48,10 +48,12 @@ export async function update(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const subsectionId: string = req.params.id;
-  let subsection: Subsection | null = await Subsection.findByPk(subsectionId);
+  const id: string = req.params.id;
+  let subsection: Subsection | null = await Subsection.findByPk(id);
   if (!subsection) {
-    res.status(404).json({ message: "Cannot find subsection with that id" });
+    res
+      .status(404)
+      .json({ message: `Cannot find subsection with id ${id}` });
     return;
   }
 
@@ -79,5 +81,5 @@ export async function destroy(
     res.json({ section_id: subsection.section_id, id: subsection.id });
     return;
   }
-  res.status(404).json({ message: "Cannot find subsection with that id" });
+  res.status(404).json({ message: `Cannot find subsection with id ${id}` });
 }
