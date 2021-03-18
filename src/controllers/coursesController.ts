@@ -28,13 +28,23 @@ export async function show(
       model: Section,
       as: "sections",
       attributes: ["id", "title", "sort_id"],
+      separate: true,
+      order: ["sort_id"],
       include: [
         {
           model: Subsection,
           as: "subsections",
-          attributes: ["id", "title", "sort_id"],
+          attributes: ["id", "title"],
+          separate: true,
+          order: ["sort_id"],
           include: [
-            { model: Lesson, as: "lessons", attributes: ["id", "title"] },
+            {
+              model: Lesson,
+              as: "lessons",
+              attributes: ["id", "title"],
+              separate: true,
+              order: ["sort_id"],
+            },
           ],
         },
       ],
