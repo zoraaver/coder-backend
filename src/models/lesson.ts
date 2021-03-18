@@ -94,7 +94,7 @@ Lesson.init(
     test: DataTypes.TEXT,
     starter_code: DataTypes.TEXT,
     language: DataTypes.STRING,
-    content: DataTypes.STRING,
+    content: DataTypes.TEXT,
     sort_id: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

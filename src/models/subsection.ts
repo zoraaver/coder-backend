@@ -82,7 +82,7 @@ Subsection.init(
       autoIncrement: true,
     },
     title: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notNull: {

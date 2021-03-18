@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 sequelize
-  .authenticate()
+  .sync({ alter: true })
   .then(() => {
     console.log("Successfully connected to database.");
     app.listen(process.env.PORT || 8080, () => {
