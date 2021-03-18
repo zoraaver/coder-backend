@@ -51,4 +51,5 @@ Subsection.init(
 Subsection.hasMany(Lesson, {
   foreignKey: "subsection_id",
   as: "lessons",
+  onDelete: "CASCADE",
 });

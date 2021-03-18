@@ -7,6 +7,9 @@ import { UserLesson } from "./userlesson";
 export class Section extends Model {
   subsections!: Subsection[];
   dataValues: any;
+  sort_id!: number;
+  id!: number;
+  title!: string;
 
   async completed(userId: number): Promise<number> {
     const total: number = await UserLesson.sum("status", {
@@ -42,8 +45,24 @@ Section.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    title: DataTypes.STRING,
-    course_id: DataTypes.INTEGER,
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Title is a mandatory field.",
+        },
+      },
+    },
+    course_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Course id is a mandatory field.",
+        },
+      },
+    },
     sort_id: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
@@ -60,4 +79,5 @@ Section.init(
 Section.hasMany(Subsection, {
   foreignKey: "section_id",
   as: "subsections",
+  onDelete: "CASCADE",
 });

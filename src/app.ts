@@ -1,9 +1,10 @@
 import { sequelize } from "./util/database";
 import express, { Application } from "express";
-import { loggedIn, setCurrentUser } from "./middleware/auth";
+import { isAdmin, loggedIn, setCurrentUser } from "./middleware/auth";
 import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
 import { courseRoutes } from "./routes/courseRoutes";
+import { sectionRoutes } from "./routes/sectionRoutes";
 
 const app: Application = express();
 
@@ -16,6 +17,7 @@ app.use(setCurrentUser);
 app.use(authRoutes);
 app.use("/users", userRoutes);
 app.use("/courses", loggedIn, courseRoutes);
+app.use("/sections", loggedIn, isAdmin, sectionRoutes);
 
 sequelize
   .authenticate()

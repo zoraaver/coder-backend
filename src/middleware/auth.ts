@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { User } from "../models/user";
 
 export function setCurrentUser(
   req: Request,
@@ -36,4 +37,17 @@ export function loggedIn(
     next();
   }
   return;
+}
+
+export async function isAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const user: User | null = await User.findByPk(req.currentUserId);
+  if (!user || !user.admin) {
+    res.status(401).json({ message: "This action requires admin access." });
+    return;
+  }
+  next();
 }
