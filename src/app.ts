@@ -5,6 +5,7 @@ import { userRoutes } from "./routes/userRoutes";
 import { courseRoutes } from "./routes/courseRoutes";
 import { sectionRoutes } from "./routes/sectionRoutes";
 import { subsectionRoutes } from "./routes/subsectionRoutes";
+import { lessonRoutes } from "./routes/lessonRoutes";
 
 export const app: Application = express();
 
@@ -19,3 +20,4 @@ app.use("/users", userRoutes);
 app.use("/courses", loggedIn, courseRoutes);
 app.use("/sections", loggedIn, isAdmin, sectionRoutes);
 app.use("/subsections", loggedIn, isAdmin, subsectionRoutes);
+app.use("/lessons", loggedIn, lessonRoutes);

@@ -10,6 +10,7 @@ export class Section extends Model {
   sort_id!: number;
   id!: number;
   title!: string;
+  course_id!: number;
 
   async completed(userId: number): Promise<number> {
     const total: number = await UserLesson.sum("status", {
@@ -35,6 +36,21 @@ export class Section extends Model {
       default:
         return 1;
     }
+  }
+
+  async previousSection(): Promise<Section | null> {
+    return Section.findOne({
+      where: { course_id: this.course_id, sort_id: { [Op.lt]: this.sort_id } },
+      order: [["sort_id", "DESC"]],
+      limit: 1,
+    });
+  }
+  async nextSection(): Promise<Section | null> {
+    return Section.findOne({
+      where: { course_id: this.course_id, sort_id: { [Op.gt]: this.sort_id } },
+      order: [["sort_id", "ASC"]],
+      limit: 1,
+    });
   }
 }
 
@@ -80,4 +96,9 @@ Section.hasMany(Subsection, {
   foreignKey: "section_id",
   as: "subsections",
   onDelete: "CASCADE",
+});
+
+Subsection.belongsTo(Section, {
+  as: "section",
+  foreignKey: "section_id",
 });

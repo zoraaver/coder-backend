@@ -3,6 +3,7 @@ import { DataTypes, Model } from "sequelize";
 
 export class UserLesson extends Model {
   status!: number;
+  code!: string;
 }
 
 UserLesson.init(

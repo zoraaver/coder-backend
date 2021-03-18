@@ -10,5 +10,6 @@ export const sequelize = new Sequelize(
   {
     dialect: "postgres",
     host: "localhost",
+    logging: process.env.NODE_ENV !== "production",
   }
 );

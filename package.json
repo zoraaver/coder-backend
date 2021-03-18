@@ -2,10 +2,10 @@
   "name": "node_coder_backend",
   "version": "1.0.0",
   "description": "Backend for coder web application",
-  "main": "dist/app.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node dist/app.js",
+    "start": "tsc && node dist/server.js",
     "dev": "tsc -w & nodemon"
   },
   "nodemonConfig": {
@@ -20,7 +20,7 @@
       ".git",
       "node_modules"
     ],
-    "exec": "node dist/app.js"
+    "exec": "node dist/server.js"
   },
   "author": "zoraaver",
   "license": "ISC",
