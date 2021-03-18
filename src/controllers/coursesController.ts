@@ -44,12 +44,10 @@ export async function show(
     res.status(404).json("Cannot find course with that id");
     return;
   }
-  const userCourse: UserCourse | null = await UserCourse.findOne({
+  await UserCourse.findOrCreate({
     where: { user_id: req.currentUserId, course_id: id },
   });
-  if (!userCourse) {
-    UserCourse.create({ user_id: req.currentUserId, course_id: id });
-  }
+
   res.json(await serializeCourse(req.currentUserId as number, course));
 }
 
