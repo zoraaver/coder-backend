@@ -5,6 +5,7 @@ import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
 import { courseRoutes } from "./routes/courseRoutes";
 import { sectionRoutes } from "./routes/sectionRoutes";
+import { subsectionRoutes } from "./routes/subsectionRoutes";
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ app.use(authRoutes);
 app.use("/users", userRoutes);
 app.use("/courses", loggedIn, courseRoutes);
 app.use("/sections", loggedIn, isAdmin, sectionRoutes);
+app.use("/subsections", loggedIn, isAdmin, subsectionRoutes);
 
 sequelize
   .authenticate()

@@ -6,6 +6,10 @@ import { UserLesson } from "./userlesson";
 export class Subsection extends Model {
   lessons!: Lesson[];
   dataValues: any;
+  sort_id!: number;
+  id!: number;
+  title!: string;
+  section_id!: number;
 
   async completed(userId: number): Promise<number> {
     const total: number = await UserLesson.sum("status", {
@@ -33,8 +37,24 @@ Subsection.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    title: DataTypes.STRING,
-    section_id: DataTypes.INTEGER,
+    title: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Title is a mandatory field",
+        },
+      },
+    },
+    section_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Section id is a mandatory field",
+        },
+      },
+    },
     sort_id: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
