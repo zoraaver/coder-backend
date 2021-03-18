@@ -59,10 +59,12 @@ async function serializeCourse(userId: number, course: Course) {
     sections: await Promise.all(
       course.sections.map(async (section: Section) => ({
         ...section.dataValues,
+        completed: await section.completed(userId),
         subsections: await Promise.all(
           section.subsections.map(
             async (subsection: Subsection): Promise<any> => ({
               ...subsection.dataValues,
+              completed: await subsection.completed(userId),
               lessons: await Promise.all(
                 subsection.lessons.map(async (lesson: Lesson) => {
                   return {

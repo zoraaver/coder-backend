@@ -1,10 +1,29 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Op } from "sequelize";
 import { sequelize } from "../util/database";
 import { Lesson } from "./lesson";
+import { UserLesson } from "./userlesson";
 
 export class Subsection extends Model {
   lessons!: Lesson[];
   dataValues: any;
+
+  async completed(userId: number): Promise<number> {
+    const total: number = await UserLesson.sum("status", {
+      where: {
+        user_id: userId,
+        lesson_id: { [Op.in]: this.lessons.map((l: Lesson) => l.id) },
+      },
+    });
+    const lessonCount: number = this.lessons.length;
+    switch (total) {
+      case 0:
+        return 0;
+      case 2 * lessonCount:
+        return 2;
+      default:
+        return 1;
+    }
+  }
 }
 
 Subsection.init(
