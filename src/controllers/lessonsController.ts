@@ -211,6 +211,18 @@ export async function test(
     textToReplace,
     `code${uniqueId + extension}`
   );
+  const forbiddenWords = {
+    cpp: ["include", "define", "system", "FILE", "fstream", "fopen", "cin"],
+    ruby: ["system", "File", "gets", "IO", "Dir", "Kernel", "require"],
+    javascript: ["require", "import"],
+  };
+
+  for (let forbiddenWord of forbiddenWords[lesson.language]) {
+    if (code.search(new RegExp(forbiddenWord)) >= 0) {
+      res.json({ error: "Invalid submission", results: "" });
+    return;
+    }
+  }
 
   await fs.writeFile(
     path.join(__dirname, "..", `code${uniqueId + extension}`),
@@ -223,7 +235,10 @@ export async function test(
 
   let passed: boolean = false;
   try {
-    await fs.writeFile(path.join(__dirname, "..", `${uniqueId}results.json`), "");
+    await fs.writeFile(
+      path.join(__dirname, "..", `${uniqueId}results.json`),
+      ""
+    );
     await fs.writeFile(path.join(__dirname, "..", `${uniqueId}errors.txt`), "");
     const exec = util.promisify(require("child_process").exec);
 
@@ -248,7 +263,7 @@ export async function test(
         await exec(
           `./dist/test${uniqueId}.o --gtest_output='json:./dist/${uniqueId}results.json'`
         );
-        fs.unlink(`./dist/test${uniqueId}.o`)
+        fs.unlink(`./dist/test${uniqueId}.o`);
         break;
       default:
         res.status(406).json({ message: `Invalid language ${language}` });
