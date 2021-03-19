@@ -17,7 +17,7 @@ export async function login(
       attributes: ["id", "title", "description", "img_url"],
     },
   });
-  if (user && user.authenticate(password)) {
+  if (user && await user.authenticate(password)) {
     user.setToken();
     res.json({ ...user.dataValues, password_digest: null });
   } else {

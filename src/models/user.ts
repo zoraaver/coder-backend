@@ -20,8 +20,8 @@ export class User extends Model {
     this.dataValues.token = jwt.sign(this.id, process.env.JWT_SECRET as string);
   }
 
-  async authenticate(password: string): Promise<boolean> {
-    return await bcrypt.compare(password, this.password_digest);
+  authenticate(password: string): Promise<boolean> {
+     return bcrypt.compare(password, this.password_digest);
   }
 }
 
