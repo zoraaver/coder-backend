@@ -4,6 +4,8 @@ import { Section } from "../models/section";
 import { Subsection } from "../models/subsection";
 import { UserLesson } from "../models/userlesson";
 import fs from "fs/promises";
+import util from "util";
+import path from "path";
 
 export async function create(
   req: Request,
@@ -183,9 +185,6 @@ export async function test(
     return;
   }
 
-  const errorFileOpened = fs.open(`${uniqueId}errors.txt`, "w");
-  const resultFileOpened = fs.open(`${uniqueId}results.json`, "w");
-
   const userLesson: UserLesson | null = await UserLesson.findOne({
     where: { user_id: req.currentUserId, lesson_id: id },
   });
@@ -213,18 +212,71 @@ export async function test(
     `code${uniqueId + extension}`
   );
 
+  await fs.writeFile(
+    path.join(__dirname, "..", `code${uniqueId + extension}`),
+    code
+  );
+  await fs.writeFile(
+    path.join(__dirname, "..", `test${uniqueId + extension}`),
+    testCode
+  );
+
   let passed: boolean = false;
+  try {
+    await fs.writeFile(path.join(__dirname, "..", `${uniqueId}results.json`), "");
+    await fs.writeFile(path.join(__dirname, "..", `${uniqueId}errors.txt`), "");
+    const exec = util.promisify(require("child_process").exec);
 
-  await fs.writeFile(`usertests/code${uniqueId + extension}`, code);
-  await fs.writeFile(`usertests/test${uniqueId + extension}`, testCode);
-
-  switch (language) {
-    case "ruby":
-      
-    case "javascript":
-    case "cpp":
-
-    default:
-      res.status(406).json({ message: `Invalid language ${language}` });
+    switch (language) {
+      case "ruby":
+        await exec(
+          `rspec ./dist/test${uniqueId}.rb --format json --out ./dist/${uniqueId}results.json`
+        );
+        passed = true;
+        break;
+      case "javascript":
+        await exec(
+          `mocha ./dist/test${uniqueId}.js --timeout 5000 -R json 1> ./dist/${uniqueId}results.json 2> ./dist/${uniqueId}errors.txt`
+        );
+        passed = true;
+        break;
+      case "cpp":
+        await exec(
+          `g++ ./dist/test${uniqueId}.cpp -std=c++17 -lgtest -pthread -o ./dist/test${uniqueId}.o 2> ./dist/${uniqueId}errors.txt`
+        );
+        passed = true;
+        await exec(
+          `./dist/test${uniqueId}.o --gtest_output='json:./dist/${uniqueId}results.json'`
+        );
+        fs.unlink(`./dist/test${uniqueId}.o`)
+        break;
+      default:
+        res.status(406).json({ message: `Invalid language ${language}` });
+    }
+  } catch (error) {
+    console.error(error.message);
   }
+
+  if (passed) await userLesson.update({ status: 2 });
+
+  const error: string = await fs.readFile(`./dist/${uniqueId}errors.txt`, {
+    encoding: "utf-8",
+  });
+  const results: string = await fs.readFile(`./dist/${uniqueId}results.json`, {
+    encoding: "utf-8",
+  });
+
+  res.json({
+    results,
+    error,
+  });
+
+  const allFilesDeleted: Promise<void>[] = [
+    fs.unlink(`./dist/${uniqueId}results.json`),
+    fs.unlink(`./dist/${uniqueId}errors.txt`),
+    fs.unlink(path.join(__dirname, "..", `code${uniqueId + extension}`)),
+    fs.unlink(path.join(__dirname, "..", `test${uniqueId + extension}`)),
+  ];
+
+  await Promise.all(allFilesDeleted);
 }
