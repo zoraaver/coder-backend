@@ -142,3 +142,28 @@ export async function destroy(
   await lesson.destroy();
   res.json(Number(lesson.id));
 }
+
+export async function completeLesson(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const id: string = req.params.id;
+  const lesson: Lesson | null = await Lesson.findByPk(id);
+  if (!lesson) {
+    res.status(404).json({ message: `Cannot find lesson with id ${id}` });
+    return;
+  }
+  const userLesson: UserLesson | null = await UserLesson.findOne({
+    where: { lesson_id: lesson.id, user_id: req.currentUserId },
+  });
+
+  if (!userLesson) {
+    res
+      .status(404)
+      .json({ message: `Cannot find userLesson with lesson_id ${lesson.id}` });
+    return;
+  }
+  await userLesson.update({ status: 2 });
+  res.json({ message: "Lesson completed successfully" });
+}

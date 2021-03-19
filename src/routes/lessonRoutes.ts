@@ -16,6 +16,8 @@ lessonRoutes.get("/:id/edit", isAdmin, lessonsController.edit);
 
 lessonRoutes.get("/:id", lessonsController.show);
 
+lessonRoutes.patch("/:id/complete_lesson", lessonsController.completeLesson);
+
 lessonRoutes.put(
   "/:id",
   isAdmin,
