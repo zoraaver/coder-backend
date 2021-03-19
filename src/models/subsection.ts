@@ -21,9 +21,8 @@ export class Subsection extends Model {
       },
     });
     const lessonCount: number = this.lessons.length;
+    if (isNaN(total)) return 0;
     switch (total) {
-      case 0:
-        return 0;
       case 2 * lessonCount:
         return 2;
       default:

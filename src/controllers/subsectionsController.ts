@@ -34,7 +34,7 @@ export async function create(
       title,
       sort_id: nextSortId,
     });
-    res.json({
+    res.status(201).json({
       subsection: { ...subsection.dataValues, lessons: [], completed: 0 },
       section_id,
     });
@@ -51,9 +51,7 @@ export async function update(
   const id: string = req.params.id;
   let subsection: Subsection | null = await Subsection.findByPk(id);
   if (!subsection) {
-    res
-      .status(404)
-      .json({ message: `Cannot find subsection with id ${id}` });
+    res.status(404).json({ message: `Cannot find subsection with id ${id}` });
     return;
   }
 

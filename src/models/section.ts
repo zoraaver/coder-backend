@@ -28,9 +28,8 @@ export class Section extends Model {
     const lessonCount: number = this.subsections
       .map((s: Subsection) => s.lessons.length)
       .reduce((total: number, curr: number) => total + curr, 0);
+    if (isNaN(total)) return 0;
     switch (total) {
-      case 0:
-        return 0;
       case 2 * lessonCount:
         return 2;
       default:

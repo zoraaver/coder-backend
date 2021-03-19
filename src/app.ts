@@ -6,8 +6,18 @@ import { courseRoutes } from "./routes/courseRoutes";
 import { sectionRoutes } from "./routes/sectionRoutes";
 import { subsectionRoutes } from "./routes/subsectionRoutes";
 import { lessonRoutes } from "./routes/lessonRoutes";
+import morgan from "morgan";
+import cors from "cors";
 
 export const app: Application = express();
+
+// prevent CORS errors
+app.use(cors());
+
+// logging for development
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
 
 // parse incoming requests as JSON
 app.use(express.json());

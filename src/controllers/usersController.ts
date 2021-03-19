@@ -23,7 +23,7 @@ export async function create(
     });
     await user.save();
     user.setToken();
-    res.json({
+    res.status(201).json({
       email: user.dataValues.email,
       token: user.dataValues.token,
       admin: user.dataValues.admin,

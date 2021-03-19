@@ -3,6 +3,7 @@ import { Lesson } from "../models/lesson";
 import { Section } from "../models/section";
 import { Subsection } from "../models/subsection";
 import { UserLesson } from "../models/userlesson";
+import fs from "fs/promises";
 
 export async function create(
   req: Request,
@@ -166,4 +167,64 @@ export async function completeLesson(
   }
   await userLesson.update({ status: 2 });
   res.json({ message: "Lesson completed successfully" });
+}
+
+export async function test(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const uniqueId: string = (req.currentUserId as number).toString();
+  const { id, code, language } = req.body;
+
+  const lesson: Lesson | null = await Lesson.findByPk(id);
+  if (!lesson) {
+    res.status(404).json({ message: `Cannot find lesson with id ${id}` });
+    return;
+  }
+
+  const errorFileOpened = fs.open(`${uniqueId}errors.txt`, "w");
+  const resultFileOpened = fs.open(`${uniqueId}results.json`, "w");
+
+  const userLesson: UserLesson | null = await UserLesson.findOne({
+    where: { user_id: req.currentUserId, lesson_id: id },
+  });
+
+  if (!userLesson) {
+    res
+      .status(404)
+      .json({ message: `Cannot find userLesson with lesson_id ${id}` });
+    return;
+  }
+
+  userLesson.update({ code: req.body.code });
+
+  const extensions = {
+    cpp: ".cpp",
+    ruby: ".rb",
+    javascript: ".js",
+  };
+
+  const extension = extensions[lesson.language];
+
+  const textToReplace = new RegExp(`code${extension}`, "g");
+  const testCode: string = lesson.test.replace(
+    textToReplace,
+    `code${uniqueId + extension}`
+  );
+
+  let passed: boolean = false;
+
+  await fs.writeFile(`usertests/code${uniqueId + extension}`, code);
+  await fs.writeFile(`usertests/test${uniqueId + extension}`, testCode);
+
+  switch (language) {
+    case "ruby":
+      
+    case "javascript":
+    case "cpp":
+
+    default:
+      res.status(406).json({ message: `Invalid language ${language}` });
+  }
 }

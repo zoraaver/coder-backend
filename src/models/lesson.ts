@@ -11,7 +11,7 @@ export class Lesson extends Model {
   starter_code!: string;
   subsection_id!: number;
   subsection!: Subsection;
-  language!: string;
+  language!: "javascript" | "cpp" | "ruby";
   content!: string;
   title!: string;
 

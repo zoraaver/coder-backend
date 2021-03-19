@@ -34,7 +34,7 @@ export async function create(
       title,
       sort_id: nextSortId,
     });
-    res.json({
+    res.status(201).json({
       ...section.dataValues,
       completed: 0,
       subsections: [],
