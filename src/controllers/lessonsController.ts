@@ -259,10 +259,10 @@ export async function test(
         await exec(
           `g++ ./dist/test${uniqueId}.cpp -std=c++17 -lgtest -pthread -o ./dist/test${uniqueId}.o 2> ./dist/${uniqueId}errors.txt`
         );
-        passed = true;
         await exec(
           `./dist/test${uniqueId}.o --gtest_output='json:./dist/${uniqueId}results.json'`
         );
+        passed = true;
         fs.unlink(`./dist/test${uniqueId}.o`);
         break;
       default:
