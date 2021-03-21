@@ -11,7 +11,7 @@
   "nodemonConfig": {
     "delay": "2000",
     "restartable": "rs",
-    "ext": "js,json",
+    "ext": "js",
     "watch": [
       "dist"
     ],

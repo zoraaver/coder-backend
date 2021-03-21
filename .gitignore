@@ -5,3 +5,6 @@ node_modules
 
 # built js files
 dist
+
+# vscode settings
+.vscode

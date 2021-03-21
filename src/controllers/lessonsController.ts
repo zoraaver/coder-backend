@@ -5,7 +5,6 @@ import { Subsection } from "../models/subsection";
 import { UserLesson } from "../models/userlesson";
 import fs from "fs/promises";
 import util from "util";
-import path from "path";
 
 export async function create(
   req: Request,
@@ -171,6 +170,8 @@ export async function completeLesson(
   res.json({ message: "Lesson completed successfully" });
 }
 
+type Language = "cpp" | "ruby" | "javascript";
+
 export async function test(
   req: Request,
   res: Response,
@@ -178,6 +179,11 @@ export async function test(
 ): Promise<void> {
   const uniqueId: string = (req.currentUserId as number).toString();
   const { id, code, language } = req.body;
+
+  if (checkForForbiddenWords(code, language)) {
+    res.status(406).json({ error: "Invalid submission" });
+    return;
+  }
 
   const lesson: Lesson | null = await Lesson.findByPk(id);
   if (!lesson) {
@@ -196,7 +202,7 @@ export async function test(
     return;
   }
 
-  userLesson.update({ code: req.body.code });
+  userLesson.update({ code });
 
   const extensions = {
     cpp: ".cpp",
@@ -207,91 +213,125 @@ export async function test(
   const extension = extensions[lesson.language];
 
   const textToReplace = new RegExp(`code${extension}`, "g");
+
   const testCode: string = lesson.test.replace(
     textToReplace,
     `code${uniqueId + extension}`
   );
+
+  const resultsPath = `./dist/${uniqueId}results.json`;
+  const errorsPath = `./dist/${uniqueId}errors.txt`;
+  const codePath = `./dist/code${uniqueId + extension}`;
+  const testPath = `./dist/test${uniqueId + extension}`;
+  const executablePath = `./dist/test${uniqueId}.o`;
+
+  const testFiles = [
+    { path: resultsPath, data: "" },
+    { path: errorsPath, data: "" },
+    { path: codePath, data: code },
+    { path: testPath, data: testCode },
+    { path: executablePath, data: "" },
+  ];
+
+  try {
+    await writeAllTestFiles(testFiles);
+  } catch {
+    res.status(500).json({ message: "Some error occurred. Please try later." });
+    return;
+  }
+  let passed: boolean = false;
+  try {
+    passed = await runTests(
+      language,
+      testPath,
+      resultsPath,
+      errorsPath,
+      executablePath
+    );
+  } catch (error) {}
+
+  if (passed) await userLesson.update({ status: 2 });
+
+  res.json(await readErrorsAndResultsFiles(errorsPath, resultsPath));
+
+  try {
+    await deleteAllTestFiles(testFiles);
+  } catch (error) {}
+}
+
+async function readErrorsAndResultsFiles(
+  errorsPath: string,
+  resultsPath: string
+): Promise<{ error: string; results: string }> {
+  const errorFileRead = fs.readFile(errorsPath, "utf-8");
+  const resultsFileRead = fs.readFile(resultsPath, "utf-8");
+  return { error: await errorFileRead, results: await resultsFileRead };
+}
+
+async function deleteAllTestFiles(
+  files: Array<{ path: string; data: string }>
+) {
+  const allFilesDeleted: Promise<void>[] = [];
+
+  for (let file of files) {
+    allFilesDeleted.push(fs.unlink(file.path));
+  }
+
+  return Promise.all(allFilesDeleted);
+}
+
+async function writeAllTestFiles(files: Array<{ path: string; data: string }>) {
+  const allFilesWritten: Promise<void>[] = [];
+
+  for (let file of files) {
+    allFilesWritten.push(fs.writeFile(file.path, file.data));
+  }
+  return Promise.all(allFilesWritten);
+}
+
+function checkForForbiddenWords(code: string, language: Language): boolean {
   const forbiddenWords = {
     cpp: ["include", "define", "system", "FILE", "fstream", "fopen", "cin"],
     ruby: ["system", "File", "gets", "IO", "Dir", "Kernel", "require"],
     javascript: ["require", "import"],
   };
 
-  for (let forbiddenWord of forbiddenWords[lesson.language]) {
+  for (let forbiddenWord of forbiddenWords[language]) {
     if (code.search(new RegExp(forbiddenWord)) >= 0) {
-      res.json({ error: "Invalid submission", results: "" });
-    return;
+      return true;
     }
   }
+  return false;
+}
 
-  await fs.writeFile(
-    path.join(__dirname, "..", `code${uniqueId + extension}`),
-    code
-  );
-  await fs.writeFile(
-    path.join(__dirname, "..", `test${uniqueId + extension}`),
-    testCode
-  );
-
+async function runTests(
+  language: Language,
+  testPath: string,
+  resultsPath: string,
+  errorsPath: string,
+  executablePath: string
+): Promise<boolean> {
+  const exec: Function = util.promisify(require("child_process").exec);
   let passed: boolean = false;
-  try {
-    await fs.writeFile(
-      path.join(__dirname, "..", `${uniqueId}results.json`),
-      ""
-    );
-    await fs.writeFile(path.join(__dirname, "..", `${uniqueId}errors.txt`), "");
-    const exec = util.promisify(require("child_process").exec);
-
-    switch (language) {
-      case "ruby":
-        await exec(
-          `rspec ./dist/test${uniqueId}.rb --format json --out ./dist/${uniqueId}results.json`
-        );
-        passed = true;
-        break;
-      case "javascript":
-        await exec(
-          `mocha ./dist/test${uniqueId}.js --timeout 5000 -R json 1> ./dist/${uniqueId}results.json 2> ./dist/${uniqueId}errors.txt`
-        );
-        passed = true;
-        break;
-      case "cpp":
-        await exec(
-          `g++ ./dist/test${uniqueId}.cpp -std=c++17 -lgtest -pthread -o ./dist/test${uniqueId}.o 2> ./dist/${uniqueId}errors.txt`
-        );
-        await exec(
-          `./dist/test${uniqueId}.o --gtest_output='json:./dist/${uniqueId}results.json'`
-        );
-        passed = true;
-        fs.unlink(`./dist/test${uniqueId}.o`);
-        break;
-      default:
-        res.status(406).json({ message: `Invalid language ${language}` });
-    }
-  } catch (error) {
-    console.error(error.message);
+  switch (language) {
+    case "ruby":
+      await exec(`rspec ${testPath} --format json --out ${resultsPath}`);
+      passed = true;
+      break;
+    case "javascript":
+      await exec(
+        `npx mocha ${testPath} --timeout 5000 -R json 1> ${resultsPath} 2> ${errorsPath}`
+      );
+      passed = true;
+      break;
+    case "cpp":
+      await exec(
+        `g++ ${testPath} -std=c++17 -lgtest -pthread -o ${executablePath} 2> ${errorsPath}`
+      );
+      await exec(`${executablePath} --gtest_output='json:${resultsPath}'`);
+      passed = true;
+      break;
+    default:
   }
-
-  if (passed) await userLesson.update({ status: 2 });
-
-  const error: string = await fs.readFile(`./dist/${uniqueId}errors.txt`, {
-    encoding: "utf-8",
-  });
-  const results: string = await fs.readFile(`./dist/${uniqueId}results.json`, {
-    encoding: "utf-8",
-  });
-
-  res.json({
-    results,
-    error,
-  });
-
-  const allFilesDeleted: Promise<void>[] = [
-    fs.unlink(`./dist/${uniqueId}results.json`),
-    fs.unlink(`./dist/${uniqueId}errors.txt`),
-    fs.unlink(path.join(__dirname, "..", `code${uniqueId + extension}`)),
-    fs.unlink(path.join(__dirname, "..", `test${uniqueId + extension}`)),
-  ];
-
-  await Promise.all(allFilesDeleted);
+  return passed;
 }
