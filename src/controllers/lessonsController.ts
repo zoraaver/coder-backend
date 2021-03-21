@@ -252,7 +252,16 @@ export async function test(
 
   if (passed) await userLesson.update({ status: 2 });
 
-  res.json(await readErrorsAndResultsFiles(errorsPath, resultsPath));
+  const { error, results } = await readErrorsAndResultsFiles(
+    errorsPath,
+    resultsPath
+  );
+
+  if (language === "javascript") {
+    res.json({ results });
+  } else {
+    res.json({ error, results });
+  }
 
   try {
     await deleteAllTestFiles(testFiles);
