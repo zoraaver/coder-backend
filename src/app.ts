@@ -8,19 +8,20 @@ import { subsectionRoutes } from "./routes/subsectionRoutes";
 import { lessonRoutes } from "./routes/lessonRoutes";
 import morgan from "morgan";
 import cors from "cors";
-import helmet from 'helmet';
+import helmet from "helmet";
 
 export const app: Application = express();
-
-// prevent CORS errors
-app.use(cors());
 
 // security
 app.use(helmet());
 
-// logging for development
 if (process.env.NODE_ENV !== "production") {
+  // logging for development
   app.use(morgan("dev"));
+  // prevent CORS errors in development
+  app.use(cors());
+} else {
+  app.use(cors({ origin: [/https:\/\/coderface\.uk$/] }));
 }
 
 // parse incoming requests as JSON
